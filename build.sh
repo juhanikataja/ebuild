@@ -4,14 +4,15 @@
 DEFAULT_SOURCE_DIR=${HOME}/src/elmer/elmerfem
 DEFAULT_BUILD_PREFIX=${HOME}/src/elmer/builds
 DEFAULT_INTSTALL_PREFIX=${HOME}/opt/elmer
+DEFAULT_MAKE_NPROC=2
 ######################################
 
 # {{{ usage function
 usage() { 
   echo "A script for building elmer and managing elmer builds. Good for quickly producing build from a branch."
   echo "Usage:" 
-  echo -e "\t$0 [-C <preCachefile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>";
-  echo ""
+  echo -e "\t$0 [-C <preCachefile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>\n";
+  echo -e "\tSet environment variables ELMER_SOURCE_DIR, ELMER_BUILD_PREFIX and ELMER_INSTALL_PREFIX. If empty, defaults are used.\n"
   echo "Options:"
   echo -e "\t-C <preCachefile>"
   echo -e "\t\tUse <preCachefile> in cmake configuration step. If \"-\", don't use precache."
@@ -61,6 +62,10 @@ if [ -z "$ELMER_INSTALL_PREFIX" ]; then
   >&2 echo "ELMER_INSTALL_PREFIX not set. Defaulting to ${ELMER_INSTALL_PREFIX}."
 fi
 
+if [ -z "$MAKE_NPROC" ]; then
+  MAKE_NPROC=${DEFAULT_MAKE_NPROC}
+  >&2 echo "MAKE_NPROC not set. Defaulting to ${MAKE_NPROC}."
+fi
 
 ELMER_BRANCH=$(cd ${ELMER_SOURCE_DIR} && git rev-parse --abbrev-ref HEAD)
 ELMER_BUILD_DIR=${ELMER_BUILD_PREFIX}/$ELMER_BRANCH
@@ -171,6 +176,7 @@ if [ $ONLY_CONFIG -eq 1 ]; then
   exit 0
 fi
 
-make -j2 ${DO_INSTALL}
+echo "make -j${MAKE_NPROC} ${DO_INSTALL}"
+make -j${MAKE_NPROC} ${DO_INSTALL}
 popd
 exit 0
