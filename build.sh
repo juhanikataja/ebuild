@@ -11,11 +11,14 @@ DEFAULT_MAKE_NPROC=2
 usage() { 
   echo "A script for building elmer and managing elmer builds. Good for quickly producing build from a branch."
   echo "Usage:" 
-  echo -e "\t$0 [-C <preCachefile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>] [-M <make_args>]\n";
+  echo -e "\t$0 [-C <preCachefile>] [-t <toolchainfile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>] [-M <make_args>]\n";
   echo -e "\tSet environment variables ELMER_SOURCE_DIR, ELMER_BUILD_PREFIX and ELMER_INSTALL_PREFIX. If empty, defaults are used.\n"
   echo "Options:"
   echo -e "\t-C <preCachefile>"
   echo -e "\t\tUse <preCachefile> in cmake configuration step. If \"-\", don't use precache."
+  echo ""
+  echo -e "\t-t <toolchainfile>"
+  echo -e "\t\tUse <toolchainfile> as toolchain file for cmake. Default is no toolchain file."
   echo ""
   echo -e "\t-c"
   echo -e "\t\tOnly run configuration step."
@@ -74,6 +77,7 @@ ELMER_BRANCH=$(cd ${ELMER_SOURCE_DIR} && git rev-parse --abbrev-ref HEAD)
 ELMER_BUILD_DIR=${ELMER_BUILD_PREFIX}/$ELMER_BRANCH
 ELMER_INSTALL_DIR=${ELMER_INSTALL_PREFIX}/${ELMER_BRANCH}
 
+TOOLCHAIN_ARG=""
 PRECACHEFILE="-C $(pwd)/opts-latest.cmake"
 ONLY_CONFIG=0
 ONLY_BUILD=0
@@ -88,7 +92,7 @@ printluamod() {
   echo -e "setenv(\"ELMER_HOME\", base)"
 }
 
-while getopts "C:chirbB:mn:O:M:" opt; do
+while getopts "C:chirbB:mn:O:M:t:" opt; do
   case $opt in
     O)
       CMAKE_OPTIONS=${OPTARG}
@@ -108,6 +112,16 @@ while getopts "C:chirbB:mn:O:M:" opt; do
       if [ ! -z "$_PRECACHEFILE" ]; then
         >&2 echo "* Using ${_PRECACHEFILE} as precache"
       fi
+      ;;
+    t)
+      if [ "${OPTARG:0:1}" = "/" ]; then
+        TOOLCHAINFILE=${OPTARG}
+        TOOLCHAIN_ARG="-DCMAKE_TOOLCHAIN_FILE=${OPTARG}"
+      else 
+        TOOLCHAINFILE="$(pwd)/$OPTARG"
+        TOOLCHAIN_ARG="-DCMAKE_TOOLCHAIN_FILE=$(pwd)/$OPTARG"
+      fi
+      >&2 echo "* Using ${TOOLCHAINFILE} as cmake toolchain file."
       ;;
     b)
       ONLY_BUILD=1
@@ -175,8 +189,8 @@ mkdir -p ${ELMER_BUILD_DIR}
 pushd ${ELMER_BUILD_DIR}
 
 if [ $ONLY_BUILD -ne 1 ]; then
-  echo cmake ${PRECACHEFILE} ${CMAKE_OPTIONS} ${ELMER_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${ELMER_INSTALL_DIR}
-  cmake ${PRECACHEFILE} ${CMAKE_OPTIONS} ${ELMER_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${ELMER_INSTALL_DIR} && ls
+  echo cmake ${PRECACHEFILE} ${TOOLCHAIN_ARG} ${CMAKE_OPTIONS} ${ELMER_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${ELMER_INSTALL_DIR}
+  cmake ${PRECACHEFILE} ${TOOLCHAIN_ARG} ${CMAKE_OPTIONS} ${ELMER_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${ELMER_INSTALL_DIR} && ls
 fi
 
 if [ $ONLY_CONFIG -eq 1 ]; then
