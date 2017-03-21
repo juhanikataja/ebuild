@@ -11,7 +11,7 @@ DEFAULT_MAKE_NPROC=2
 usage() { 
   echo "A script for building elmer and managing elmer builds. Good for quickly producing build from a branch."
   echo "Usage:" 
-  echo -e "\t$0 [-C <preCachefile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>\n";
+  echo -e "\t$0 [-C <preCachefile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>] [-M <make_args>]\n";
   echo -e "\tSet environment variables ELMER_SOURCE_DIR, ELMER_BUILD_PREFIX and ELMER_INSTALL_PREFIX. If empty, defaults are used.\n"
   echo "Options:"
   echo -e "\t-C <preCachefile>"
@@ -40,6 +40,9 @@ usage() {
   echo ""
   echo -e "\t -O <cmake_options>"
   echo -e "\t\tAdd <cmake_options> to arguments of cmake call."
+  echo ""
+  echo -e "\t -M <make_args>"
+  echo -e "\t\tAdd <make_args> to arguments of make call."
   echo ""
   echo "CSC internal / 2017-03"
   echo "Complaints not heard at juhani.kataja@csc.fi"
@@ -85,7 +88,7 @@ printluamod() {
   echo -e "setenv(\"ELMER_HOME\", base)"
 }
 
-while getopts "C:chirbB:mn:O:" opt; do
+while getopts "C:chirbB:mn:O:M:" opt; do
   case $opt in
     O)
       CMAKE_OPTIONS=${OPTARG}
@@ -145,6 +148,10 @@ while getopts "C:chirbB:mn:O:" opt; do
       printluamod
       exit 0
       ;;
+    M)
+      MAKE_ARGS=${OPTARG}
+      >&2 echo "* Extra make arguments: \"${MAKE_ARGS}\""
+      ;;
     \?)
       usage
       exit 1
@@ -176,7 +183,7 @@ if [ $ONLY_CONFIG -eq 1 ]; then
   exit 0
 fi
 
-echo "make -j${MAKE_NPROC} ${DO_INSTALL}"
-make -j${MAKE_NPROC} ${DO_INSTALL}
+echo "make -j${MAKE_NPROC} ${DO_INSTALL} ${MAKE_ARGS}"
+make -j${MAKE_NPROC} ${DO_INSTALL} ${MAKE_ARGS}
 popd
 exit 0
