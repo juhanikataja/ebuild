@@ -15,7 +15,7 @@ usage() {
   echo -e "\tSet environment variables ELMER_SOURCE_DIR, ELMER_BUILD_PREFIX and ELMER_INSTALL_PREFIX. If empty, defaults are used.\n"
   echo "Options:"
   echo -e "\t-C <preCachefile>"
-  echo -e "\t\tUse <preCachefile> in cmake configuration step. If \"-\", don't use precache."
+  echo -e "\t\tUse <preCachefile> in cmake configuration step. Default is ./opts-latest.cmake. If \"-\", don't use precache."
   echo ""
   echo -e "\t-t <toolchainfile>"
   echo -e "\t\tUse <toolchainfile> as toolchain file for cmake. Default is no toolchain file."
