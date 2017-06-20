@@ -4,11 +4,14 @@ Assorted scripts for elmer development
 ## Contents
 
 * `build.sh`: script that eases creating elmer builds given precache/toolchain etc.
-  Usage: see `./build.sh -h`
+  Usage: see `./build.sh -h`.
+  Dependencies: bash, getopt, cmake, make.
 * `packtests.sh`: pack ctest output in a minimal uniform manner.
   Usage: Run `packtests.sh <buildname>` in build directory to produce `.tar.gz` file.
+  Dependencies: bash, tar, gzip.
 * `get_times.py`: read tests packed with `packtests.sh`.
-  Usage: `get_times.py <tests.tar.gz>`
+  Usage: `get_times.py <tests.tar.gz>`.
+  Dependencies: python3, tarfile package.
 
 
 ## License
