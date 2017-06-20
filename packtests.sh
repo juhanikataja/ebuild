@@ -21,7 +21,9 @@ fi
 
 MAKEFILEDATE=$(stat --format=%x Makefile | cut -d" " -f 1)
 
-TESTOUTPUTS=$(find . -maxdepth 4 -name "test-*.log" )
+TESTPASSEDS=$(find . -maxdepth 4 -name "TEST.PASSED*")
+
+TESTOUTPUTS=$(find . -maxdepth 4 -name "test-*.log")
 if test -z "$TESTOUTPUTS"; then
   >&2 echo "No test output files. Exiting."
   exit 1
@@ -35,4 +37,4 @@ if test ! -z "$BUILDNAME"; then
 fi
 
 
-tar cvvfz "Elmer-${BUILDNAME}${REVISION}-${MAKEFILEDATE}.tar.gz" ${TESTOUTPUTS} ${TESTLOGFILE} CMakeCache.txt
+tar cvvfz "Elmer-${BUILDNAME}${REVISION}-${MAKEFILEDATE}.tar.gz" ${TESTOUTPUTS} ${TESTPASSEDS} ${TESTLOGFILE} CMakeCache.txt
