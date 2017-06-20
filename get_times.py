@@ -8,16 +8,29 @@ import tarfile
 
 def ParseTimesStream(instream,outstream,name):
   outstream.write(name+':\t')
-  matcher = re.compile('SOLVER TOTAL TIME\(CPU,REAL\):\s*\S+\s+(\S+)')
+  time_re = re.compile('SOLVER TOTAL TIME\(CPU,REAL\):\s*\S+\s+(\S+)')
+  pass_re = re.compile('(PASSED|FAILED)')
   byteout = instream.read()
   if (type(byteout)==str):
-    matches = matcher.findall(byteout)
+    time_match = time_re.findall(byteout)
+    pass_match = pass_re.findall(byteout)
   else:
-    matches = matcher.findall(byteout.decode("utf-8"))
-  outstream.write(matches[0])
-  #outstream.write('\n')
+    time_match = time_re.findall(byteout.decode("utf-8"))
+    pass_match = pass_re.findall(byteout.decode("utf-8"))
 
-  return matches
+  if len(time_match) > 0:
+    outstream.write(time_match[0])
+    time_retval=time_match[0]
+  else:
+    time_retval=''
+
+  if len(pass_match) > 0:
+    pass_retval=pass_match[0]
+  else:
+    pass_retval='UNDEFINED'
+
+  return (time_retval, pass_retval)
+
 
 
 def ParseTimes(testbase,nproc=1,file=sys.stdout):  
@@ -33,6 +46,7 @@ def ReadTestsFromTGZ(tarname="ctest_benchmark.tar.gz"):
   outputs=dict()
   with io.StringIO("") as sbuf:
     sbuf.write("# SOLVER TOTAL TIME from tests in '"+tarname+"':\n")
+    sbuf.write("Test name\ttime(s)\t(NPROCS)\n")
     with tarfile.open(tarname,'r') as tf:
       matcher = re.compile("\S*/(\S+)/test-stdout_(\d+)")
       members = tf.getmembers()
@@ -42,7 +56,8 @@ def ReadTestsFromTGZ(tarname="ctest_benchmark.tar.gz"):
           nprocs = int(matches[0][1])
           outputs[member.name]=(ParseTimesStream(tf.extractfile(member),sbuf,matches[0][0]),
                  nprocs)
-          sbuf.write('\t('+matches[0][1]+' procs)\n')
+          sbuf.write('\t('+matches[0][1]+' procs)'+'\t'+str(outputs[member.name][0][1])+'\n')
+
     sbuf.seek(0)
     print(sbuf.read())
     
