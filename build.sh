@@ -47,8 +47,8 @@ usage() {
   echo -e "\t -M <make_args>"
   echo -e "\t\tAdd <make_args> to arguments of make call."
   echo ""
-  echo "CSC / 2017-03"
-  echo "Complaints not heard at juhani.kataja@csc.fi"
+  echo "CSC - Finnish IT Center for Science / 2017-03"
+  echo "Feedback juhani dot kataja at csc dot fi"
   exit 0; 
 }
 #}}}
