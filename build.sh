@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### These defaults can be edited  ###
-DEFAULT_SOURCE_DIR=${HOME}/src/elmer/elmerfem
+DEFAULT_SOURCE_DIR=${HOME}/src/elmer/elmerfem 
 DEFAULT_BUILD_PREFIX=${HOME}/src/elmer/builds
 DEFAULT_INTSTALL_PREFIX=${HOME}/opt/elmer
 DEFAULT_MAKE_NPROC=2
@@ -46,6 +46,9 @@ usage() {
   echo ""
   echo -e "\t -M <make_args>"
   echo -e "\t\tAdd <make_args> to arguments of make call."
+  echo ""
+  echo -e "\t -s <file>"
+  echo -e "\t\tSource <file> prior to doing anything."
   echo ""
   echo "CSC - Finnish IT Center for Science / 2017-03"
   echo "Feedback juhani dot kataja at csc dot fi"
@@ -92,8 +95,11 @@ printluamod() {
   echo -e "setenv(\"ELMER_HOME\", base)"
 }
 
-while getopts "C:chirbB:mn:O:M:t:" opt; do
+while getopts "s:C:chirbB:mn:O:M:t:" opt; do
   case $opt in
+    s)
+      source ${OPTARG}
+      ;;
     O)
       CMAKE_OPTIONS=${OPTARG}
       >&2 echo "* Extra cmake options: \"${CMAKE_OPTIONS}\""
