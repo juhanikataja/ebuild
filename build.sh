@@ -3,7 +3,7 @@
 ### These defaults can be edited  ###
 DEFAULT_SOURCE_DIR=${HOME}/src/elmer/elmerfem 
 DEFAULT_BUILD_PREFIX=${HOME}/src/elmer/builds
-DEFAULT_INTSTALL_PREFIX=${HOME}/opt/elmer
+DEFAULT_INSTALL_PREFIX=${HOME}/opt/elmer
 DEFAULT_MAKE_NPROC=2
 ######################################
 
@@ -67,7 +67,7 @@ if [ -z "$ELMER_BUILD_PREFIX" ]; then
 fi
 
 if [ -z "$ELMER_INSTALL_PREFIX" ]; then
-  ELMER_INSTALL_PREFIX=${DEFAULT_INTSTALL_PREFIX}
+  ELMER_INSTALL_PREFIX=${DEFAULT_INSTALL_PREFIX}
   >&2 echo "ELMER_INSTALL_PREFIX not set. Defaulting to ${ELMER_INSTALL_PREFIX}."
 fi
 
@@ -193,6 +193,11 @@ fi
 mkdir -p ${ELMER_BUILD_DIR}
 
 pushd ${ELMER_BUILD_DIR}
+
+if [ $? -ne 0 ]; then
+  echo "Failed to pushd ${ELMER_BUILD_DIR}"
+  exit
+fi
 
 if [ $ONLY_BUILD -ne 1 ]; then
   echo cmake ${PRECACHEFILE} ${TOOLCHAIN_ARG} ${CMAKE_OPTIONS} ${ELMER_SOURCE_DIR} -DCMAKE_INSTALL_PREFIX=${ELMER_INSTALL_DIR}
