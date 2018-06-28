@@ -11,7 +11,7 @@ DEFAULT_MAKE_NPROC=2
 usage() { 
   echo "A script for building elmer and managing elmer builds. Good for quickly producing build from a branch."
   echo "Usage:" 
-  echo -e "\t$0 [-C <preCachefile>] [-t <toolchainfile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>] [-M <make_args>]\n";
+  echo -e "\t$0 [-C <preCachefile>] [-t <toolchainfile>] [-c] [-b] [-h] [-i] [-r] [-B <Branch>] [-m] [-n <name>] [-O <cmake_options>] [-M <make_args>] [-p <post_command>]\n";
   echo -e "\tSet environment variables ELMER_SOURCE_DIR, ELMER_BUILD_PREFIX and ELMER_INSTALL_PREFIX. If empty, defaults are used.\n"
   echo "Options:"
   echo -e "\t-C <preCachefile>"
@@ -50,6 +50,9 @@ usage() {
   echo -e "\t -s <file>"
   echo -e "\t\tSource <file> prior to doing anything."
   echo ""
+  echo -e "\t -p <post_command>"
+  echo -e "\t\tExecute <post_command> in build directory after building"
+  echo ""
   echo "CSC - Finnish IT Center for Science / 2017-03"
   echo "Feedback juhani dot kataja at csc dot fi"
   exit 0; 
@@ -86,6 +89,7 @@ ONLY_CONFIG=0
 ONLY_BUILD=0
 DO_INSTALL=
 DO_CLEAN=0
+DO_POST=0
 
 printluamod() {
   echo -e "help(\n[[\nelmerfem ${ELMER_BRANCH} branch\n]])\n"
@@ -95,7 +99,7 @@ printluamod() {
   echo -e "setenv(\"ELMER_HOME\", base)"
 }
 
-while getopts "s:C:chirbB:mn:O:M:t:" opt; do
+while getopts "s:C:chirbB:mn:O:M:t:p:" opt; do
   case $opt in
     s)
       source ${OPTARG}
@@ -176,6 +180,10 @@ while getopts "s:C:chirbB:mn:O:M:t:" opt; do
       usage
       exit 1
       ;;
+    p)
+      POST_COMMAND=${OPTARG}
+      DO_POST=1
+      ;;
   esac
 done
 
@@ -192,11 +200,16 @@ fi
 
 mkdir -p ${ELMER_BUILD_DIR}
 
+if [ $? -ne 0 ]; then
+  echo "Failed to mkdir -p ${ELMER_BUILD_DIR}"
+  exit 1
+fi
+
 pushd ${ELMER_BUILD_DIR}
 
 if [ $? -ne 0 ]; then
   echo "Failed to pushd ${ELMER_BUILD_DIR}"
-  exit
+  exit 1
 fi
 
 if [ $ONLY_BUILD -ne 1 ]; then
@@ -205,10 +218,18 @@ if [ $ONLY_BUILD -ne 1 ]; then
 fi
 
 if [ $ONLY_CONFIG -eq 1 ]; then
-  exit 0
+  exit 1
 fi
 
 echo "make -j${MAKE_NPROC} ${DO_INSTALL} ${MAKE_ARGS}"
 make -j${MAKE_NPROC} ${DO_INSTALL} ${MAKE_ARGS}
+if [ $? -ne 0 ]; then
+  echo "make failed"
+  exit 1
+fi
+
+if [ $DO_POST -eq 1 ]; then
+  ${POST_COMMAND}
+fi
 popd
 exit 0
