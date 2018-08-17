@@ -95,6 +95,7 @@ printluamod() {
   echo -e "help(\n[[\nelmerfem ${ELMER_BRANCH} branch\n]])\n"
   echo -e "local version = \"${ELMER_BRANCH}\""
   echo -e "local base = \"${ELMER_INSTALL_DIR}\""
+  echo -e "prepend_path(\"PKG_CONFIG_PATH\", pathJoin(base, \"share/pkgconfig\"))"
   echo -e "prepend_path(\"PATH\", pathJoin(base, \"bin\"))"
   echo -e "setenv(\"ELMER_HOME\", base)"
 }
