@@ -183,7 +183,12 @@ done
 >&2 echo -e "BUILD DIRECTORY:\t${ELMER_BUILD_DIR}\nSOURCE DIRECTORY:\t${ELMER_SOURCE_DIR}\nINSTALL DIRECTORY:\t${ELMER_INSTALL_DIR}"
 
 if [ ${DO_CLEAN} -eq 1 ]; then
-  ls -l ${ELMER_BUILD_DIR} && rm -Ir ${ELMER_BUILD_DIR}/* && mkdir -p ${ELMER_BUILD_DIR} && cd ${ELMER_BUILD_DIR}
+  find ${ELMER_BUILD_DIR} -d 1 -print0 | xargs -0 -n 1 ls -l -d
+  read -p "Remove these recursively? (y/n)" query_remove
+  if [ $query_remove=y ]; then
+    find ${ELMER_BUILD_DIR} -d 1 -print0 | xargs -0 -n 1 -I % sh -c 'echo Removing %; rm -r %'
+  fi
+  mkdir -p ${ELMER_BUILD_DIR} && cd ${ELMER_BUILD_DIR}
 fi
 
 if [ $(ls -a ${ELMER_BUILD_DIR} 2> /dev/null | wc -l) -gt 2 ]; then
