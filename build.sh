@@ -194,7 +194,7 @@ done
 if [ ${DO_CLEAN} -eq 1 ]; then
   find ${ELMER_BUILD_DIR} -maxdepth 1 -print0 | xargs -0 -n 1 ls -l -d
   read -p "Remove these recursively? (y/n)" query_remove
-  if [ $query_remove=y ]; then
+  if [ $query_remove="y" ]; then
     find ${ELMER_BUILD_DIR} -maxdepth 1 -print0 | xargs -0 -n 1 -I % sh -c 'echo Removing %; rm -r %'
   fi
   mkdir -p ${ELMER_BUILD_DIR} && cd ${ELMER_BUILD_DIR}
